@@ -1,0 +1,178 @@
+Conjunto de dados = Dataset
+Encontrar dataset => Kaggle: https://kaggle.com/
+Usado na aula => https://www.kaggle.com/datasets/zynicide/wine-reviews
+Tutorial para baixar e ler o dataset => https://app.tango.us/app/workflow/Como-baixar-e-importar-um-Dataset-para-o-Colab-a7fa2f3515be4beab9c01197079dac3c
+
+Encontrar e importar um dataset
+- Vai montar um drive pessoal dentro do colab do google
+	from google.colab import drive
+	drive.mount('/content/drive')
+
+A célula abaixo permitirá que o colab leia os conteúdos do nosso Dataset. 
+
+	import pandas/ import pandas as pd
+	read_csv() => le o arquivo
+	df = pd.read_csv("winemag-data-130k-v2.csv") => o caminho do drive.mount tem que ter esse arquivo
+
+SOBRE O DATAFRAME
+	Esse conjunto de dados que estamos utilizando como exemplo possui informações de vários vinhos e uma descrição feita por algum sommelier. As variáveis que ele possui são:
+		country: o país de origem do vinho
+
+		description: descrição do sommellier
+
+		designation: vinha de origem do vinho
+
+		points: nota que o vinho recebeu no "WineEnthusiast"
+
+		price: preço de uma garrafa do vinho
+
+		province: província (ou estado) de onde o vinho veio
+
+		region_1: província do plantio da uva
+
+		region_2: área específica dentro da província de plantio
+
+		taster_name: nome do sommelier
+
+		taster_twitter_handle: twitter do sommelier
+
+		title: nome do vinho
+
+		variety: tipo do vinho
+
+		winery: vinícula de origem do vinho
+
+MANIPULANDO O DATAFRAME
+- Visualizando trechos do Dataframe
+	df.head() => verificas as 5 primeiras linhas
+	df.head(10) => vizualiza 10 primeiras linhas
+	df.tail() => ultimas linhas
+	df.sample(5) => mostra 5 linhas aleatória
+	df.shape => mostra a quantidade de linhas e colunas
+	
+A função a seguir é a describe(). Com ela podemos ter vários tipos de métricas úteis para uma análise superficial dos dados numéricos do Dataframe.
+
+Somente são utilizadas as variáveis numéricas do dataset, uma vez que a função describe retorna valores estatísticos. Os valores retornados são:
+	count: número de observações daquela variável
+	mean: valor médio dessa variável
+	std: desvio padrão da variável
+	min: valor mínimo registrado
+	25%: valor que separa o primeiro quartil
+	50%: valor que separa o segundo quartil
+	75%: valor que separa o terceiro quartil
+	max: valor máximo registrado
+	
+	df.describe()
+	df.columns => fornece a lista de colunas
+	df.info() => extrair informações como: quantidade de colunas, quantidade de linhas não nulas e o tipo de dado de cada uma.
+	
+SELEÇÃO DE TRECHOS DO DATAFRAME
+	df['country'] => pega uma coluna específica => SÉRIE ≃ lista
+	lista = df['country'].to_list()
+	serie = pd.Series(lista)
+	
+SPLICE EM SERIES
+Mesma forma que as listas, mas usa as linhas
+serie[500] => 500° linha da tabela
+serie[10:-10] => da 10° até a 10° de do final para o começo
+
+SELEÇÃO DE MAIS DE UMA COLUNA
+	df_novo = df[['country','variety']]
+
+SELEÇÃO DE LINHAS
+*loc e iloc*
+df_novo2 = df[['country','variety','province', 'region_1',]]
+	df_novo2.iloc[5] #linha 5
+	df_novo2.iloc[5:20] # entre linha 5 e 20
+ .loc devemos passar o rótulo da linha e não a usa posição (o rótulo seria essa primeira coluna que fica a esquerda da tabela com os números em negrito)
+ 
+FILTRO POR VALOR
+df[(condicao_desejada)]
+df_novo = df[df['country'] == 'France']  #filtrando quando df['country'] for igual a 'France'
+df_novo.head()
+
+AGRUPAMENTO POR VALOR
+Uma outra ferramenta muito interessante que temos para organizar dataframes que temos é a função groupby().
+
+Esse é o tipo de função que é mais fácil ver funcionando do que explicar o que ela faz.
+
+Passamos uma variável do dataset como parâmetro da função que será utilizada como referência para agrupar as outras variáveis numéricas(nesse caso "country"). Mas como assim agrupar as outras variáveis numéricas??
+
+A forma de agrupamento é passada com esse método no final (.mean()) isso diz ao programa que o nosso objetivo é juntar todas as observações de um mesmo país e tirar a média os valores numéricos das outras variáveis.
+
+Primeiro, vamos criar um dataset com apenas a coluna que queremos utilizar como base para o agrupamento e as colunas numéricas de interesse.
+
+Após isso, aplicamos a função groupby no dataset
+
+df_group = df[['country','points','price']]
+
+df_group = df_group.groupby('country').mean()
+df_group
+
+Dessa forma, podemos ver qual a média de cada variável numérica para cada um dos países. É possível, por exemplo, ver a média de preço em cada país e saber quais são os países que possuem o vinho mais caro ou o mais barato.
+
+OBS: o ".mean()" poderia também ser: .sum(), .std(), .min() e .max() (soma dos valores, desvio padrão, valor mínimo e valor máximo respectivamente)
+
+Caso queira ordenar os valores, podemos utilzar a função
+
+df_group.sort_values(by='points', ascending=True)
+devemos passar o nome da coluna considerada na ordenação no atributo "by". O atributo ascending diz se será ordenado de forma crescente ou decrescente. Ascending = True é ordenação crescente e ascending = False é ordenação decrescente veja como fica os países ordenados pela média de pontuação por exemplo
+
+DADOS NULOS
+	É importante que você saiba que algo muito comum ao se trabalhar com datasets é a existência de dados faltantes, também conhecidos como dados nulos. Dados faltantes basicamente são dados não registrados, ou seja, uma determinada célula do dataframe que não possui nenhum dado lá dentro. Saiba que é comum que os dados nulos sejam chamados de "NaN" (Not a Number) no dataframe. Por fim, é importante que você saiba quais motivos levam a um dado faltante.
+
+	-Dados nulos aleatórios
+		O primeiro motivo para a existência para um dado nulo é por causa aleatória. Daremos alguns exemplos para que fique mais claro:
+
+		Imagine que há um dispositivo que mede a salinidade da água. Esse dispositivo consiste em uma boia com um cilindro metálico acoplado. A boia é jogada no mar, e tem como finalidade fazer com que o dispositivo como um todo flutue. Por sua vez, o cilindro metálico é a parte que justamente tem como finalidade medir a salinidade da água. O cilindro mede e armazena a salinidade que ele detectou na água a cada exatos 1 minuto. Entretanto, devido a agitação das ondas do mar, a boia pode se mexer de forma que, quando o cilindro for medir a salinidade, o cilindro se encontra fora da água. E quando isso acontece, o dispositivo armazena um dado nulo, pois não foi possível armazenar um dado de salinidade da água. Perceba que nesse caso o motivo da existência do dado nulo é totalmente aleatória. Ou seja, não há um padrão para a existência do dado nulo.
+		Um questionário pode ser perdido acidentalmente no correio de forma aleatória (imprevisível)
+		Uma amostra de sangue pode ser danificada acidentalmente no laboratório de forma aleatória (imprevisível)
+		Portanto, quando dizemos que faltam dados completamente ao acaso, queremos dizer que a falta não tem nada a ver com o objeto que está sendo estudado.
+
+	-Dados nulos devido a razão sistemática
+		Por outro lado, também há a possibilidade de que a existência dos dados nulos não seja aleatória. Ou seja, pode ser que a falta se deva a uma razão sistemática. Vamos para alguns exemplos para que isso fique mais claro:
+
+		Imagine que está sendo feita uma pesquisa, sendo que essa pesquisa é feita de forma a perguntar ao entrevistado algumas informações sobre si. Porém, o candidato pode optar por não querer responder a uma determinada pergunta. Uma das perguntas é declarar qual é a renda mensal do entrevistado. É conhecido o fato de que indivíduos com alta renda tendem a não revelar o quanto ganham de salário (para fins didáticos, imagine que pessoas com baixa ou média renda tendem a declarar sem problemas seu salário). Quando os dados de todos os entrevistados foram coletados, percebeu-se que alguns candidatos não declararam qual era seu salário, ou seja, possuíam um dado nulo. Porém, perceba que neste caso o dado nulo não se deve à causa aleatória, pois sabemos que eles se devem provavelmente ao fato daquela pessoa possui alta renda. Neste caso, a existência do dado nulo está provavelmente atrelada a um motivo conhecido.
+		Imagine que uma pessoa deveria comparecer hoje a um exame para detectar se ela está sob o efeito de drogas. Entretanto, a pessoa não compareceu ao exame (e também não será punida por isso). Ou seja, o resultado daquele exame se tornou um dado nulo, uma informação faltante em relação àquela pessoa. Porém, sabe-se que uma pessoa que não está drogada não deveria ter problemas em fazer o exame, ou seja, se a pessoa faltou no exame é devido uma tentativa de esconder que está drogada. Perceba que novamente neste caso o motivo da existência do dado nulo não é totalmente aleatória, pois a existência do dado nulo está provavelmente atrelada a um motivo conhecido (sistemático).
+	
+		Perceba que nesse contexto, diferentemente dos dados nulos aleatórios, a existência de um dado nulo nos revela uma (provável) informação sobre aquela pessoa sendo estudada. Ou seja, o dado nulo nos fornece uma informação sobre o objeto estudado.
+		
+COMO IDENTIFICAR E TRATAR DADOS NULOS
+Nesta seção você irá estudar sobre como identificar dados nulos em um dataframe, assim como de que forma pode tratá-los. Inicialmente, comece estudando os conteúdos abaixo:
+
+Como lidar com dados faltantes (NaN) em um Dataset
+
+Como tratar dados nulos no dataset? => https://www.youtube.com/watch?v=k1zi4EwIXoc
+
+A seguir, revisaremos os conteúdos abordados! => https://medium.com/horadecodar/como-tratar-dados-nulos-no-dataset-4f0470b22d38
+
+A função isnull() mostrará se cada linha possui algum valor nulo.
+	df.isnull()
+
+A função isnull() por si só não nos fornece uma visão muito boa, pois seria necessário vasculhar o Dataset inteiro procurando por algum "True".
+
+Para isso pode ser melhor usar a função sum(), que vai somar e retornar a quantidade de valores nulos para cada coluna.
+	df.isnull().sum()
+
+Como visto acima, existem muitos valores nulos e isso pode nos atrapalhar.
+
+Uma forma de tratar esse problema é eliminando todas as linhas com valores nulos.
+
+Para isso existe a função dropna() do Pandas. Ela remove todas as linhas que possuem algum valor nulo.
+	df = df.dropna()
+	df
+
+DADOS DUPLICADOS
+Para verificar linhas duplicadas usamos a função duplicated(). Porém, ela possui o mesmo problema da função isnull(), isto é, ela é dificil de interpretar.
+	df.duplicated()
+Para facilitar, podemos usar novamente a função sum(), que nos retornará a quantidade de linhas duplicadas. No caso não existem linhas duplicadas.
+	df.duplicated().sum()]
+Mas se existissem, poderíamos usar a função drop_duplicates().
+	df = df.drop_duplicates()
+
+COMO TRATAR DADOS DUPLICADOS
+	dataFrame.dropna() => exclui as linhas com algum dado faltante
+	dataFrame.isnull() => diz se o dado é nulo ou não e cria um dataframe deles
+	dataFrame.isnull().sum() => soma todos os nulos e monta um frame que tem a soma dos faltantes em cada columa/variável
+	dataFrame["Coluna que deseja"].fillna("NULO", inplace="True") => preenche os dados NaN com NULO e permanece na mesma linha
+
